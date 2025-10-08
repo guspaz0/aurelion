@@ -1,0 +1,8 @@
+services:
+  guayerd-g4:
+    image: python:alpine3.21
+    container_name: aurelion
+    volumes:
+      - ./:/usr/code
+    working_dir: /usr/code/
+    command: tail -f /dev/null

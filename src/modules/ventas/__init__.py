@@ -1,0 +1,6 @@
+from modules.ventas.models.venta_model import VentaModel
+from modules.ventas.models.detalle_venta_model import DetalleVentaModel
+from modules.ventas.repository.ventas_repository import VentasRepository
+from modules.ventas.repository.detalle_ventas_repository import DetalleVentasRepository
+from modules.ventas.service.ventas_service import VentasService
+from modules.ventas.service.detalle_ventas_service import DetalleVentasService

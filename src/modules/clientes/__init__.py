@@ -1,0 +1,3 @@
+from modules.clientes.cliente_model import ClienteModel
+from modules.clientes.clientes_repository import ClientesRepository
+from modules.clientes.cliente_service import ClienteService
