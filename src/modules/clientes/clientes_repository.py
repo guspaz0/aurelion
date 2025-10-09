@@ -1,11 +1,12 @@
 from inspect import _void
 from typing import Any, Dict, List
+import pathlib
 import os, csv
 from modules.clientes.cliente_model import ClienteModel
 
 class ClientesRepository:
     def __init__(self):
-        self.db_path = os.path.join(os.getcwd(), "bd", "clientes.csv")
+        self.db_path = (pathlib.Path(__file__).parent.parent.parent / "bd" / "clientes.csv").resolve()
         self.clientes: List[ClienteModel] = []
         self.ciudades = set()
         self.departamentos = {

@@ -3,7 +3,6 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 from index import app
-import geopandas as gpd
 import pandas as pd
 import logging
 logger = logging.getLogger(__name__)
@@ -64,8 +63,3 @@ def mapa():
 
 if __name__ == "__main__":
     mapa()
-
-
-# geoJSON = gpd.read_file(geo_data)
-
-# st.dataframe(geoJSON.drop(columns=["geometry"]))

@@ -1,11 +1,12 @@
 import csv
 import os
+import pathlib
 from typing import Any, Dict, List
 from modules.ventas.models.detalle_venta_model import DetalleVentaModel
 
 class DetalleVentasRepository:
     def __init__(self):
-        self.db_path = os.path.join(os.getcwd(), "bd", "detalle_ventas.csv")
+        self.db_path = (pathlib.Path(__file__).parent.parent.parent.parent / "bd" / "detalle_ventas.csv").resolve()
         self.detalle_ventas: List[DetalleVentaModel] = []
         self._load()
 
