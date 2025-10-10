@@ -1,13 +1,5 @@
 import logging
 import streamlit as st
-import pandas as pd
-import importlib
-import traceback
-# try to import app from package or local module name depending on execution context
-try:
-    from src.app_state import app
-except Exception:
-    from app_state import app
 
 logger = logging.getLogger(__name__)
 
@@ -27,22 +19,15 @@ def home():
         """
         Aurelion es una tienda/despensa/supermercado que vende productos de limpieza y alimentos al por menor y mayor. Desarrolla sus actividades principales dentro de la provincia de cordoba, Argentina.
         Desarrollado por [Gustavo Rodolfo Paz](%s).
+
+        Desarrollado con [Streamlit](https://streamlit.io/) y [Python](https://www.python.org/).
         
         """
         % _author_
     )
 
-    st.subheader("Ultimas ventas")
+    st.page_link("app/Documentacion.py", label="Documentación", icon="📖")
 
-    ventas = app.ventas_service.get_all()[:5]
-
-    st.dataframe(
-        pd.DataFrame(
-            data=[venta.__dict__.values() for venta in ventas],
-            columns=ventas[0].__dict__.keys()
-        ),
-        hide_index=True
-    )
 
 if __name__ == "__main__":
     home()

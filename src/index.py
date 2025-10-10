@@ -25,9 +25,7 @@ def run_app():
     try:
         pg = st.navigation({
             "Home": [home_page],  # default page
-            "Ventas": [ventas, mapa_ventas],
-            "Clientes": [clientes],
-            "Productos": [productos],
+            "Reportes": [ventas, mapa_ventas, clientes, productos],
             "Documentación": [documentacion]
         }, position="sidebar", expanded=True)
         pg.run()
