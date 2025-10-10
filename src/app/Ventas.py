@@ -61,13 +61,13 @@ def ventas():
     ax.set_title("Ventas por mes y medio de pago")
 
 
-    left, right = st.columns(2)
+    grafico, tabla = st.tabs(["Grafico","Tabla"])
 
-    with left:
+    with tabla:
         st.dataframe(grouped_df)
         st.write("")
 
-    with right:
+    with grafico:
         st.pyplot(fig)
         #st.bar_chart(data=grouped_df.set_index('month')['importe'], y_label='importe')
 

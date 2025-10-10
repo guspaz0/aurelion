@@ -39,12 +39,12 @@ def mapa():
         columns=columns_list
     )
 
-    left, right = st.columns(2)
+    mapa, tabla = st.tabs(["Mapa","Tabla"])
 
-    with right:
+    with tabla:
         st.dataframe(df, hide_index=True)
 
-    with left:
+    with mapa:
         folium.Choropleth(
             geo_data=geo_data,
             name="choropleth",
@@ -58,7 +58,7 @@ def mapa():
             legend_name=f"Importe total",
         ).add_to(map)
 
-        st_data = st_folium(map, width=500)
+        st_data = st_folium(map, width=725)
    
 
 if __name__ == "__main__":

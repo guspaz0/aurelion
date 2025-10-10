@@ -1,7 +1,6 @@
 import logging
 import streamlit as st
 import pandas as pd
-import importlib
 import traceback
 
 # Set up the logger to log to console with a custom format
@@ -12,20 +11,25 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+clientes = st.Page("app/Clientes.py", title="Clientes", icon="👤")
+mapa_ventas = st.Page("app/Mapa_ventas.py", title="Mapa Ventas", icon="📍")
+ventas = st.Page("app/Ventas.py", title="Ventas", icon="📈")
+home_page = st.Page("app/home.py", title="Home", icon="🏠", default=True)
+productos = st.Page("app/Productos.py", title="Productos", icon="📦")
 
-pages = [
-    st.Page("app/home.py", title="Home", icon="🏠"),
-    st.Page("app/Mapa_ventas.py", title="Mapa Ventas", icon="📍"),
-    st.Page("app/Clientes.py", title="Clientes", icon="👤"),
-    st.Page("app/Productos.py", title="Productos", icon="📦"),
-    st.Page("app/Ventas.py", title="Ventas", icon="📈"),
-    st.Page("app/Documentacion.py", title="Documentación", icon="📖"),
-]
+documentacion = st.Page("app/Documentacion.py", title="Documentación", icon="📖")
+
 
 
 def run_app():
     try:
-        pg = st.navigation(pages=pages, position="sidebar", expanded=True)
+        pg = st.navigation({
+            "Home": [home_page],  # default page
+            "Ventas": [ventas, mapa_ventas],
+            "Clientes": [clientes],
+            "Productos": [productos],
+            "Documentación": [documentacion]
+        }, position="sidebar", expanded=True)
         pg.run()
     except Exception as e:
         st.error(f"Error al cargar la página: {e}")

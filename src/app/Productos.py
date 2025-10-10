@@ -35,9 +35,9 @@ def top_productos():
         columns=top_products[0].keys()
     )
 
-    left, right = st.columns(2)
+    grafico, tabla = st.tabs(["Gráfico", "Tabla"])
 
-    with left:
+    with grafico:
 
         category_totals = df.groupby('categoria')['importe'].sum()
 
@@ -59,8 +59,7 @@ def top_productos():
         # Display the pie chart in Streamlit
         st.pyplot(fig1)
 
-    with right:
-        df.drop(columns=["categoria"], inplace=True)
+    with tabla:
         df = df.rename(columns={'id_producto': 'id'})
         st.dataframe(df, hide_index=True)
 

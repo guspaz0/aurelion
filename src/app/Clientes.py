@@ -47,14 +47,14 @@ def top_clientes():
         st.info("No clientes found for the selected date range.")
         return
 
-    left, rigth = st.columns(2)
+    grafico, tabla = st.tabs(["Gráfico", "Tabla"])
 
-    with left:
+    with tabla:
         # Hide internal id before showing
         df = df.rename(columns={'id_cliente': 'id'})
         st.dataframe(df, hide_index=True)
 
-    with rigth:
+    with grafico:
         # Create a stacked bar chart grouped by client
         payment_methods = ['efectivo', 'transferencia', 'tarjeta', 'qr']
 
