@@ -13,7 +13,7 @@ pip install -r requirements.txt
 - Ejecutar el script principal (si existe) o lanzar los módulos de limpieza según la estructura del proyecto. Por ejemplo, si el proyecto tiene un `index.py` que orquesta la limpieza:
 
 ```bash
-python src/index.py
+python src/main.py
 ```
 
 Si prefiere ejecutar por pasos, crear un pequeño script `scripts/limpiar.py` que importe las funciones de `modules/*` y siga el pseudocódigo.
