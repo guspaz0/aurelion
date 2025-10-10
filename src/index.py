@@ -14,12 +14,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 pages = [
-    st.Page("pages/home.py", title="Home", icon="🏠"),
-    st.Page("pages/Mapa_ventas.py", title="Mapa Ventas", icon="📍"),
-    st.Page("pages/Clientes.py", title="Clientes", icon="👤"),
-    st.Page("pages/Productos.py", title="Productos", icon="📦"),
-    st.Page("pages/Ventas.py", title="Ventas", icon="📈"),
-    st.Page("pages/documentacion/Documentacion.py", title="Documentación", icon="📖"),
+    st.Page("app/home.py", title="Home", icon="🏠"),
+    st.Page("app/Mapa_ventas.py", title="Mapa Ventas", icon="📍"),
+    st.Page("app/Clientes.py", title="Clientes", icon="👤"),
+    st.Page("app/Productos.py", title="Productos", icon="📦"),
+    st.Page("app/Ventas.py", title="Ventas", icon="📈"),
+    st.Page("app/Documentacion.py", title="Documentación", icon="📖"),
 ]
 
 

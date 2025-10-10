@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from app_state import app
-import logging, copy
+import logging
 logger = logging.getLogger(__name__)
 
 st.set_page_config(
