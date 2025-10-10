@@ -26,7 +26,7 @@ def home():
         % _author_
     )
 
-    st.page_link("app/Documentacion.py", label="Documentación", icon="📖")
+    st.page_link("Documentacion.py", label="Documentación", icon="📖")
 
 
 if __name__ == "__main__":

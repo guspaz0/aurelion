@@ -11,13 +11,13 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-clientes = st.Page("app/Clientes.py", title="Clientes", icon="👤")
-mapa_ventas = st.Page("app/Mapa_ventas.py", title="Mapa Ventas", icon="📍")
-ventas = st.Page("app/Ventas.py", title="Ventas", icon="📈")
-home_page = st.Page("app/home.py", title="Home", icon="🏠", default=True)
-productos = st.Page("app/Productos.py", title="Productos", icon="📦")
+clientes = st.Page("Clientes.py", title="Clientes", icon="👤")
+mapa_ventas = st.Page("Mapa_ventas.py", title="Mapa Ventas", icon="📍")
+ventas = st.Page("Ventas.py", title="Ventas", icon="📈")
+home_page = st.Page("home.py", title="Home", icon="🏠", default=True)
+productos = st.Page("Productos.py", title="Productos", icon="📦")
 
-documentacion = st.Page("app/Documentacion.py", title="Documentación", icon="📖")
+documentacion = st.Page("Documentacion.py", title="Documentación", icon="📖")
 
 
 
