@@ -1,18 +1,8 @@
-from modules import VentasService, ProductoService, ClienteService
 import logging
 import streamlit as st
 import pandas as pd
-
-class App:
-    """
-    Backend class for the Aurelion application. This class is responsible for managing the application's state and providing access to the services.
-    """
-    def __init__(self):
-        self.ventas_service = VentasService()
-        self.productos_service = ProductoService()
-        self.clientes_service = ClienteService()
-
-app = App()
+import importlib
+import traceback
 
 # Set up the logger to log to console with a custom format
 logging.basicConfig(
@@ -23,41 +13,24 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-st.set_page_config(
-    page_title="Aurelion",
-    page_icon=":nerd:",
-    layout="wide"
-)
+pages = [
+    st.Page("pages/home.py", title="Home", icon="🏠"),
+    st.Page("pages/Mapa_ventas.py", title="Mapa Ventas", icon="📍"),
+    st.Page("pages/Clientes.py", title="Clientes", icon="👤"),
+    st.Page("pages/Productos.py", title="Productos", icon="📦"),
+    st.Page("pages/Ventas.py", title="Ventas", icon="📈"),
+    st.Page("pages/documentacion/Documentacion.py", title="Documentación", icon="📖"),
+]
 
-def index():
-    logger.info("refresco")
-    _author_ = "https://www.linkedin.com/in/gustavo-rodolfo-paz/"
-    
-    st.title("Dashboard Aurelion")
-    st.header("Bienvenido/a")
-    st.markdown(
-        """
-        Aurelion es una tienda/despensa/supermercado que vende productos de limpieza y alimentos al por menor y mayor. Desarrolla sus actividades principales dentro de la provincia de cordoba, Argentina.
-        Desarrollado por [Gustavo Rodolfo Paz](%s).
-        
-        """
-        % _author_
-    )
 
-    # left, right = st.columns(2)
+def run_app():
+    try:
+        pg = st.navigation(pages=pages, position="sidebar", expanded=True)
+        pg.run()
+    except Exception as e:
+        st.error(f"Error al cargar la página: {e}")
+        st.text(traceback.format_exc())
 
-    # with left:
-    st.subheader("Ultimas ventas")
-
-    ventas = app.ventas_service.get_all()[:5]
-
-    st.dataframe(
-        pd.DataFrame(
-            data=[venta.__dict__.values() for venta in ventas],
-            columns=ventas[0].__dict__.keys()
-        ),
-        hide_index=True
-    )
 
 if __name__ == "__main__":
-    index()
+    run_app()

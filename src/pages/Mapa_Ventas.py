@@ -2,7 +2,7 @@ from datetime import datetime
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from index import app
+from app_state import app
 import pandas as pd
 import logging
 logger = logging.getLogger(__name__)

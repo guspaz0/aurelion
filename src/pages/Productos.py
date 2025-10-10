@@ -2,7 +2,7 @@ from datetime import datetime,date
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
-from index import app
+from app_state import app
 import logging
 logger = logging.getLogger(__name__)
 
