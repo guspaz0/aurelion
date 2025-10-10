@@ -6,7 +6,7 @@ from modules.ventas.models.detalle_venta_model import DetalleVentaModel
 
 class DetalleVentasRepository:
     def __init__(self):
-        self.db_path = (pathlib.Path(__file__).parent.parent.parent.parent / "bd" / "detalle_ventas.csv").resolve()
+        self.db_path = (pathlib.Path(__file__).parents[4] / "bd" / "detalle_ventas.csv").resolve()
         self.detalle_ventas: List[DetalleVentaModel] = []
         self._load()
 

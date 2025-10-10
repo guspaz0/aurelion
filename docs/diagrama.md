@@ -1,5 +1,8 @@
 ## Diagrama de flujo (Mermaid)
 
+> [!WARNING] 
+> Para visualizar el diagrama, usar Mermaid Live Editor o un editor que soporte Mermaid.
+
 ```mermaid
 flowchart TB
     Start([Inicio / main])

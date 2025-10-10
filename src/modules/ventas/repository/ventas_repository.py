@@ -7,7 +7,7 @@ from modules.ventas.models.venta_model import VentaModel
 
 class VentasRepository:
     def __init__(self):
-        self.db_path = (pathlib.Path(__file__).parent.parent.parent.parent / "bd" / "ventas.csv").resolve()
+        self.db_path = (pathlib.Path(__file__).parents[4] / "bd" / "ventas.csv").resolve()
         self.ventas: List[VentaModel] = []
         self.medios_de_pago= set()
         self._load()

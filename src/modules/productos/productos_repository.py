@@ -6,7 +6,7 @@ from .producto_model import ProductoModel
 
 class ProductosRepository:
     def __init__(self):
-        self.db_path = (pathlib.Path(__file__).parent.parent.parent / "bd" / "productos.csv").resolve()
+        self.db_path = (pathlib.Path(__file__).parents[3] / "bd" / "productos.csv").resolve()
         self.productos: List[ProductoModel] = []
         self.categorias = set()
         self._load()
