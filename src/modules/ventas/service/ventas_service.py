@@ -42,7 +42,7 @@ class VentasService:
         from modules.clientes.clientes_repository import ClientesRepository
         clientes_repo = ClientesRepository()
         ciudades: List[str] = list(clientes_repo.ciudades)
-        departamentos: Dict[str, str] = dict(clientes_repo.departamentos)
+        departamentos: Dict[str, str] = dict(clientes_repo._dao.departamentos)
         ventas_ciudades = dict()
         for ciudad in ciudades:
             ventas_ciudades[ciudad] = 0

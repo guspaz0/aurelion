@@ -13,6 +13,7 @@ class ClienteModel:
     email: str
     ciudad: str
     fecha_alta: datetime
+    departamento: str = None
 
     @property
     def ventas(self) -> List['VentaModel']:
@@ -24,14 +25,6 @@ class ClienteModel:
     def ventas(self, value: List['VentaModel']):
         if isinstance(value, list) and all(isinstance(item, VentaModel) for item in value):
             self._ventas = value
-
-    @property
-    def departamento(self):
-        return self._departamento
-
-    @departamento.setter
-    def departamento(self, value: str):
-        self._departamento = value
 
     def total_ventas(self, desde: datetime | date | str = None, hasta: datetime | date | str = None) -> Dict[str,int | float]:
         """

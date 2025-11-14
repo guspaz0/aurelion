@@ -3,48 +3,18 @@ from typing import Any, Dict, List
 import pathlib
 import os, csv
 from modules.clientes.cliente_model import ClienteModel
+from modules.clientes.clientes_dao import ClientesDao
 
 class ClientesRepository:
     def __init__(self):
-        self.db_path = (pathlib.Path(__file__).parents[3] / "bd" / "clientes.csv").resolve()
-        self.clientes: List[ClienteModel] = []
+        self._dao = ClientesDao()
         self.ciudades = set()
-        self.departamentos = {
-            "mendiolaza": "COLON",
-            "cordoba": "CAPITAL",
-            "villa maria": "GENERAL SAN MARTIN",
-            "alta gracia": "SANTA MARIA",
-            "carlos paz": "PUNILLA",
-            "rio cuarto": "RIO CUARTO"
-        }
-        self._load()
-
-    def _load(self):
-        """
-        Loads data from the csv file into the clientes list.
-        """
-        with open(self.db_path, mode='r',encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            keys: List[str] = []
-            for row in reader:
-                dict: Dict[str, Any] = {}
-                if len(keys) == 0:
-                    keys = row
-                    continue
-                for i in range(0,len(keys)):
-                    dict[keys[i]] = row[i] or ''
-                dict['id_cliente'] = int(dict['id_cliente'])
-                cliente = ClienteModel(**dict)
-                cliente.departamento = self.departamentos[cliente.ciudad.lower()]
-                self.clientes.append(cliente)
-                self.ciudades.add(dict['ciudad'] or '')
-            csvfile.close()
 
     def get_all(self) -> List[ClienteModel]:
         """
         Returns all the clients from the database.
         """
-        return self.clientes
+        return [ClienteModel(*row) for row in self._dao.get_all()]
     
     def buscar_por_id(self, id: int) -> ClienteModel:
         """
@@ -52,7 +22,7 @@ class ClientesRepository:
 
         :param id: int - The id of the client to search for.
         """
-        return [cliente for cliente in self.clientes if cliente.id_cliente == id][0]
+        return ClienteModel(*self._dao.get_by_id(id))
     
     def agregar(self, cliente: ClienteModel) -> _void:
         """
@@ -60,14 +30,5 @@ class ClientesRepository:
 
         :param cliente: ClienteModel - The client to save.
         """
-        try:
-            # chequeo que no haya repetidos, si no existe entra al except
-            set = [i.to_dict() for i in self.clientes]
-            set.index(cliente.to_dict())
-        except:
-            self.clientes.append(cliente)
-            #escribo a la base de datos csv
-            with open(self.db_path, mode='a', newline='', encoding='utf-8') as csvfile:
-                writer = csv.writer(csvfile)
-                # Assuming cliente has a method 'to_dict()' that returns its attributes as a dictionary
-                writer.writerow(cliente.to_dict().values())
+        # chequeo que no haya repetidos, si no existe entra al except
+        self._dao.insert_cliente(**cliente)

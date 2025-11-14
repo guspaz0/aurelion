@@ -16,10 +16,7 @@ mapa_ventas = st.Page("_pages/MapaVentas.py", title="Mapa Ventas", icon="📍")
 ventas = st.Page("_pages/Ventas.py", title="Ventas", icon="📈")
 home_page = st.Page("_pages/home.py", title="Home", icon="🏠", default=True)
 productos = st.Page("_pages/Productos.py", title="Productos", icon="📦")
-
 documentacion = st.Page("_pages/Documentacion.py", title="Documentación", icon="📖")
-
-
 
 def run_app():
     try:
