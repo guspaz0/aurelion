@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime, date
-import json
+import json, logging
 from typing import Dict, List, TYPE_CHECKING
+
+logger = logging.getLogger(__file__)
 
 if TYPE_CHECKING:
     from modules.ventas.models.venta_model import VentaModel
@@ -17,9 +19,12 @@ class ClienteModel:
 
     @property
     def ventas(self) -> List['VentaModel']:
-        from modules.ventas.service.ventas_service import VentasService
-        self._ventas = VentasService().get_by_id_cliente(self.id_cliente)
-        return self._ventas
+        try:
+            from modules.ventas.service.ventas_service import VentasService
+            self._ventas = VentasService().get_by_id_cliente(self.id_cliente)
+            return self._ventas
+        except Exception as e:
+            logger.error(f"Error cliente_model: {e}")
     
     @ventas.setter
     def ventas(self, value: List['VentaModel']):

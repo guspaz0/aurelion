@@ -1,7 +1,9 @@
 from datetime import datetime
-import os, csv
+import os, csv, logging
 from typing import Dict, List, TYPE_CHECKING
 from modules.ventas.repository.ventas_repository import VentasRepository
+
+logger = logging.getLogger(__file__)
 
 if TYPE_CHECKING:
     from modules.ventas.models.venta_model import VentaModel

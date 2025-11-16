@@ -8,7 +8,7 @@ from modules.clientes.clientes_dao import ClientesDao
 class ClientesRepository:
     def __init__(self):
         self._dao = ClientesDao()
-        self.ciudades = set()
+        self.ciudades = self._dao.get_ciudades()
 
     def get_all(self) -> List[ClienteModel]:
         """

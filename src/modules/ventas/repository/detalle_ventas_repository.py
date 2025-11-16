@@ -1,42 +1,19 @@
-import csv
-import os
-import pathlib
+import csv, logging
 from typing import Any, Dict, List
+from modules.ventas.repository.detalle_ventas_dao import DetalleVentasDao
 from modules.ventas.models.detalle_venta_model import DetalleVentaModel
+
+logger = logging.getLogger(__name__)
 
 class DetalleVentasRepository:
     def __init__(self):
-        self.db_path = (pathlib.Path(__file__).parents[4] / "bd" / "detalle_ventas.csv").resolve()
-        self.detalle_ventas: List[DetalleVentaModel] = []
-        self._load()
-
-    def _load(self):
-        """
-        Loads the data from the CSV file into the repository.
-        """
-        with open(self.db_path, mode='r', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            keys: List[str] = []
-            for row in reader:
-                dict: Dict[str, Any] = {}
-                if len(keys) == 0:
-                    keys = row
-                    continue
-                for i in range(0,len(keys)):
-                    dict[keys[i]] = row[i] or ''
-                dict['id_producto'] = int(dict['id_producto'])
-                dict['id_venta'] = int(dict['id_venta'])
-                dict['cantidad'] = int(dict['cantidad'])
-                dict['precio_unitario'] = float(dict['precio_unitario'])
-                dict['importe'] = float(dict['importe'])
-                self.detalle_ventas.append(DetalleVentaModel(**dict))
-            csvfile.close()
+        self._dao = DetalleVentasDao()
     
     def get_all(self) -> List[DetalleVentaModel]:
         """
         Returns all the ventas stored in the repository.
         """
-        return self.detalle_ventas
+        return [DetalleVentaModel(*dv) for dv in self._dao.get_all()]
     
     def get_by_id_venta(self, id_venta: int) -> List[DetalleVentaModel]:
         """
@@ -44,7 +21,7 @@ class DetalleVentasRepository:
 
         :param id_venta: The id of the venta to retrieve.
         """
-        return [dv for dv in self.detalle_ventas if dv.id_venta == id_venta]
+        return [DetalleVentaModel(*dv) for dv in self._dao.get_by_venta(id_venta)]
     
     def get_by_id_producto(self, id_producto: int) -> List[DetalleVentaModel]:
         """
@@ -52,14 +29,16 @@ class DetalleVentasRepository:
 
         :param id_producto: The id of the producto to retrieve
         """
-        return [dv for dv in self.detalle_ventas if dv.id_producto == id_producto]
+        return [DetalleVentaModel(*dv) for dv in self._dao.get_by_producto(id_producto)]
 
     def agregar(self, detalle_venta: DetalleVentaModel):
         """
         Saves the venta to the repository and writes it to a CSV file.
         """
-        self.detalle_ventas.append(detalle_venta)
-
-        with open(self.db_path, mode='a', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(detalle_venta.to_dict().values())
+        id = self._dao.insert_detalle_venta(
+            detalle_venta.id_venta, 
+            detalle_venta.id_producto,
+            detalle_venta.cantidad,
+            detalle_venta.precio_unitario
+        )
+        logger.info(f"DetalleVentaModel saved with id: {id}")

@@ -1,13 +1,13 @@
-import sqlite3
-import pathlib
+import sqlite3, pathlib, logging
+
+logger = logging.getLogger(__file__)
 
 db_path = (pathlib.Path(__file__).parents[3] / 'bd' / 'bd.sqlite').resolve()
 
 class DbConnection:
     def __init__(self):
         self.conn = sqlite3.connect(db_path)
-        print(f"Database path: {db_path}")
-        print("Connected to database")
+        logger.info("Connected to database")
 
     def get_connection(self):
         return self.conn

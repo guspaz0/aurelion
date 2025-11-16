@@ -1,4 +1,4 @@
-import pathlib, logging, csv
+import pathlib, logging, csv, sqlite3
 from modules.db.db_connection import db
 from typing import List, Dict, Any, Tuple
 
@@ -16,6 +16,7 @@ class ClientesDao:
             "carlos paz": "PUNILLA",
             "rio cuarto": "RIO CUARTO"
         }
+        self.initialize()
 
     def initialize(self):
         with self.conn as conn:
@@ -32,6 +33,8 @@ class ClientesDao:
                 )
             ''')
             conn.commit()
+            if self.count() == 0:
+                self._load_from_csv()
             cursor.close()
 
     def insert_cliente(self, id_cliente, nombre_cliente, email, ciudad, departamento, fecha_alta):
@@ -55,12 +58,35 @@ class ClientesDao:
             cursor.close()
             return data
     
-    def get_by_id(self, id) -> Tuple:
+    def get_by_id(self, id_cliente: int) -> Tuple:
+        with self.conn as conn:
+            try:
+                cursor = conn.cursor()
+                data = cursor.execute('SELECT * FROM clientes WHERE id_cliente = ?',(id_cliente,)).fetchone()
+                return data
+            except Exception as e:
+                logger.error(f"Error getting cliente by id: {e}")
+            finally:
+                cursor.close()
+
+    def count(self) -> int:
+        with self.conn as conn:
+            try:
+                cursor = conn.cursor()
+                (count,) = cursor.execute("SELECT count(*) FROM clientes").fetchone()
+                cursor.close()
+                return count
+            except sqlite3.OperationalError as e:
+                (arg1,) = e.args
+                if arg1.startswith('no such table'):
+                    self.initialize()
+    
+    def get_ciudades(self) -> List[str]:
         with self.conn as conn:
             cursor = conn.cursor()
-            data = cursor.execute('SELECT * FROM clientes WHERE id_cliente = ?',(id,)).fetchone()
+            data = cursor.execute("SELECT DISTINCT ciudad FROM clientes").fetchall()
             cursor.close()
-            return data
+            return [ciudad for (ciudad,) in data]
 
     def _load_from_csv(self):
         """
