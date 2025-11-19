@@ -1,12 +1,16 @@
-import pathlib, logging, csv, sqlite3
-from modules.db.db_connection import db
+import pathlib, logging, csv
+from sqlite3 import Connection, OperationalError
 from typing import List, Dict, Any, Tuple
+from modules.clientes.cliente_model import ClienteModel
 
 logger = logging.getLogger(__file__)
 
+GET_ALL = '''SELECT * FROM clientes'''
+COUNT = "SELECT count(*) FROM clientes"
+
 class ClientesDao:
-    def __init__(self):
-        self.conn = db.get_connection()
+    def __init__(self, conn: Connection):
+        self.conn = conn
         self.csv_path = (pathlib.Path(__file__).parents[3] / "bd" / "clientes.csv").resolve()
         self.departamentos = {
             "mendiolaza": "COLON",
@@ -16,9 +20,8 @@ class ClientesDao:
             "carlos paz": "PUNILLA",
             "rio cuarto": "RIO CUARTO"
         }
-        self.initialize()
 
-    def initialize(self):
+    def _initialize(self):
         with self.conn as conn:
             cursor = conn.cursor()
             cursor.execute('''
@@ -51,19 +54,19 @@ class ClientesDao:
             finally:
                 cursor.close()
 
-    def get_all(self) -> List[Tuple]:
+    def get_all(self) -> List[ClienteModel]:
         with self.conn as conn:
             cursor = conn.cursor()
-            data = cursor.execute("SELECT * FROM clientes").fetchall()
+            data = cursor.execute(GET_ALL).fetchall()
             cursor.close()
-            return data
+            return [ClienteModel(*cliente) for cliente in data]
     
-    def get_by_id(self, id_cliente: int) -> Tuple:
+    def get_by_id(self, id_cliente: int) -> ClienteModel:
         with self.conn as conn:
             try:
                 cursor = conn.cursor()
-                data = cursor.execute('SELECT * FROM clientes WHERE id_cliente = ?',(id_cliente,)).fetchone()
-                return data
+                data = cursor.execute(GET_ALL+' WHERE id_cliente = ?',(id_cliente,)).fetchone()
+                return ClienteModel(*data)
             except Exception as e:
                 logger.error(f"Error getting cliente by id: {e}")
             finally:
@@ -73,10 +76,10 @@ class ClientesDao:
         with self.conn as conn:
             try:
                 cursor = conn.cursor()
-                (count,) = cursor.execute("SELECT count(*) FROM clientes").fetchone()
+                (count,) = cursor.execute(COUNT).fetchone()
                 cursor.close()
                 return count
-            except sqlite3.OperationalError as e:
+            except OperationalError as e:
                 (arg1,) = e.args
                 if arg1.startswith('no such table'):
                     self.initialize()

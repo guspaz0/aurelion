@@ -1,16 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 import json
 
 @dataclass
 class DetalleVentaModel():
+    id_venta: int
     id_producto: int
     nombre_producto: str
     cantidad: int
     precio_unitario: float
-    id_venta: int
-    cantidad: int
     importe: float
+    fecha: datetime = field(default_factory=lambda value: datetime.strptime(value, '%Y-%m-%d'))
 
     def to_dict(self):
         """
@@ -22,7 +22,8 @@ class DetalleVentaModel():
             "nombre_producto": self.nombre_producto,
             "cantidad": self.cantidad,
             "precio_unitario": self.precio_unitario,
-            "importe": self.importe
+            "importe": self.importe,
+            "fecha": self.fecha
         }
     
     def to_json(self):
@@ -31,10 +32,3 @@ class DetalleVentaModel():
         """
         return json.dumps(self.to_dict(), default=str, indent=4)
     
-    def get_fecha(self) -> datetime:
-        """
-        Returns the date of the venta as a datetime object.
-        """
-        from modules.ventas.service.ventas_service import VentasService
-        fecha = VentasService().get_by_id_venta(self.id_venta).fecha
-        return fecha if isinstance(fecha, datetime) else datetime.strptime(fecha, '%Y-%m-%d')

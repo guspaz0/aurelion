@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Dict, Any, TYPE_CHECKING
 import json
@@ -14,35 +14,10 @@ class VentaModel():
     nombre_cliente: str
     email: str
     medio_pago: str
-
-    @property
-    def detalle(self) -> List['DetalleVentaModel']:
-        from modules.ventas.service.detalle_ventas_service import DetalleVentasService
-        self._detalle = DetalleVentasService().get_by_id_venta(self.id_venta)
-        return self._detalle
+    ciudad: str
+    importe: float = field(default_factory=lambda value: datetime.strptime(value, '%Y-%m-%d'))
+    detalle: List['DetalleVentaModel'] = field(default_factory=lambda value: list(map(lambda x: DetalleVentaModel(**x),value)))
     
-    @detalle.setter
-    def detalle(self, value: List['DetalleVentaModel']):
-        from modules.ventas.models.detalle_venta_model import DetalleVentaModel
-        if isinstance(value, list) and all(isinstance(item, DetalleVentaModel) for item in value):
-            self._detalle = value
-
-    @property
-    def importe(self) -> float:
-        return sum(detalle.importe for detalle in self.detalle if detalle is not None)
-    
-    @importe.setter
-    def importe(self, value: float):
-        if value is not None and isinstance(value, (int, float)):
-            self._importe = value
-    
-    @property
-    def ciudad(self) -> str:
-        from modules.clientes.cliente_service import ClienteService
-        cliente = ClienteService().buscar_por_id(self.id_cliente)
-        self.departamento = cliente.departamento
-        return cliente.ciudad
-
     @property
     def departamento(self):
         return self._departamento
@@ -63,8 +38,8 @@ class VentaModel():
             "nombre_cliente": self.nombre_cliente,
             "email": self.email,
             "medio_pago": self.medio_pago,
-            "detalle": self.detalle,
-            "importe": self.importe
+            "importe": self.importe,
+            "detalle": self.detalle
         }
 
     def to_json(self) -> str:
@@ -78,6 +53,6 @@ class VentaModel():
             "nombre_cliente": self.nombre_cliente,
             "email": self.email,
             "medio_pago": self.medio_pago,
-            "detalle": [det.to_dict() for det in self.detalle] if self.detalle else [],
-            "importe": self.importe
+            "importe": self.importe,
+            "detalle": [det.to_dict() for det in self.detalle] if self.detalle else []
         }, default=str, indent=4)

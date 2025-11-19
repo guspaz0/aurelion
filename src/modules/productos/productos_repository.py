@@ -1,26 +1,26 @@
 from inspect import _void
-import os, csv
-import pathlib
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TYPE_CHECKING
 from .producto_model import ProductoModel
-from .productos_dao import ProductosDao
+
+if TYPE_CHECKING:
+    from modules.db.db_connection import DbConnection
 
 class ProductosRepository:
-    def __init__(self):
-        self._dao = ProductosDao()
-        self.categorias = set()
+    def __init__(self, db: 'DbConnection'):
+        self._db = db
+        self.categorias = db.productosDao.get_categorias()
 
     def get_all(self) -> List[ProductoModel]:
         """
         Returns all products from the database.
         """
-        return [ProductoModel(*row) for row in self._dao.get_all()]
+        return self._db.productosDao.get_all()
 
     def get_by_id(self, id: int) -> ProductoModel:
         """
         Returns the product with the given id.
         """
-        return ProductoModel(*self._dao.get_by_id(id))
+        return self._db.productosDao.get_by_id(id)
     
     def agregar(self, producto: ProductoModel) -> _void:
         """
@@ -28,4 +28,4 @@ class ProductosRepository:
 
         :param producto: The product to add.
         """
-        self._dao.insert_product(**producto.to_dict())
+        self._db.productosDao.insert_product(**producto.to_dict())

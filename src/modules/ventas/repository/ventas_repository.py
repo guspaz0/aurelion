@@ -1,15 +1,17 @@
 from datetime import datetime, date
-import os, csv, logging
-import pathlib
-from typing import Any, Dict, List
+import logging
+from typing import Any, Dict, List, TYPE_CHECKING
 from modules.ventas.models.venta_model import VentaModel
-from modules.ventas.repository.ventas_dao import VentasDao
+
+if TYPE_CHECKING:
+    from modules.db.db_connection import DbConnection
+    from modules.db.dao.ventas_dao import VentasDao
 
 logger = logging.getLogger(__file__)
 
 class VentasRepository:
-    def __init__(self):
-        self._dao = VentasDao()
+    def __init__(self, db: 'DbConnection'):
+        self._dao: 'VentasDao' = db.ventasDao
         self.medios_de_pago = self._dao.get_medios_de_pago()
     
     def get_all(self, desde: datetime | date | str = None, hasta: datetime | date | str = None) -> List[VentaModel]:

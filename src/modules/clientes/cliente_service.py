@@ -1,12 +1,14 @@
 from datetime import datetime
 from inspect import _void
-from typing import Any, Dict, List
-import os, csv
-from modules.clientes import ClienteModel, ClientesRepository
+from typing import Any, Dict, List, TYPE_CHECKING
+from . import ClienteModel, ClientesRepository
+
+if TYPE_CHECKING:
+    from modules import DbConnection
 
 class ClienteService:
-    def __init__(self):
-        self.repository: ClientesRepository = ClientesRepository()
+    def __init__(self, db: 'DbConnection'):
+        self.repository = ClientesRepository(db)
 
     def get_all(self) -> List[ClienteModel]:
         """

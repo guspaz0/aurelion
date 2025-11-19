@@ -19,44 +19,11 @@ class ClienteModel:
 
     @property
     def ventas(self) -> List['VentaModel']:
-        try:
-            from modules.ventas.service.ventas_service import VentasService
-            self._ventas = VentasService().get_by_id_cliente(self.id_cliente)
-            return self._ventas
-        except Exception as e:
-            logger.error(f"Error cliente_model: {e}")
+        return self._ventas
     
     @ventas.setter
     def ventas(self, value: List['VentaModel']):
-        if isinstance(value, list) and all(isinstance(item, VentaModel) for item in value):
-            self._ventas = value
-
-    def total_ventas(self, desde: datetime | date | str = None, hasta: datetime | date | str = None) -> Dict[str,int | float]:
-        """
-        Retorna la sumatoria de los importes de las ventas realizadas por el cliente.
-        
-        :param desde: Fecha inicial para filtrar las ventas
-        :param hasta: Fecha final para filtrar las ventas
-        """
-        from modules.ventas.repository.ventas_repository import VentasRepository
-        medios_de_pago: dict = {}
-        for medio in list(VentasRepository().medios_de_pago):
-            medios_de_pago[medio] = 0
-        importe: float = 0
-        ventas: List['VentaModel'] = self.ventas
-        if all(isinstance(fecha, str) for fecha in (desde, hasta)):
-            desde = datetime.strptime(desde, "%Y-%m-%d")
-            hasta = datetime.strptime(hasta, "%Y-%m-%d")
-        if all(isinstance(fecha, date) for fecha in (desde, hasta)):
-            desde = datetime.strptime(desde.strftime("%Y-%m-%d"), "%Y-%m-%d")
-            hasta = datetime.strptime(hasta.strftime("%Y-%m-%d"), "%Y-%m-%d")
-        if all(isinstance(fecha, datetime) for fecha in (desde, hasta)):
-            ventas = [venta for venta in self.ventas if desde <= venta.fecha <= hasta]
-        
-        for venta in ventas:
-            medios_de_pago[venta.medio_pago] += venta.importe
-            importe += venta.importe
-        return { "importe": importe, "cantidad_ventas": len(ventas), **medios_de_pago }
+        self._ventas = value
 
     def to_dict(self):
         """

@@ -1,10 +1,13 @@
 from datetime import datetime, date
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TYPE_CHECKING
 from modules.productos import ProductoModel, ProductosRepository
 
+if TYPE_CHECKING:
+    from modules.db.db_connection import DbConnection
+
 class ProductoService:
-    def __init__(self):
-        self._repository = ProductosRepository()
+    def __init__(self, db: 'DbConnection'):
+        self._repository = ProductosRepository(db)
 
     def get_all(self) -> List[ProductoModel]:
         """

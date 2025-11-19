@@ -7,10 +7,11 @@ logger = logging.getLogger(__file__)
 
 if TYPE_CHECKING:
     from modules.ventas.models.venta_model import VentaModel
+    from modules import DbConnection
 
 class VentasService:
-    def __init__(self):
-        self._repository = VentasRepository()
+    def __init__(self, db: 'DbConnection'):
+        self._repository = VentasRepository(db)
     
     def get_all(self, f_desde: datetime | str = None, f_hasta: datetime | str = None) -> List['VentaModel']:
         """Retorna todos los registros de ventas en la base de datos. Ordenados por fecha en orden descendente."""
@@ -41,10 +42,9 @@ class VentasService:
         :param desde: Fecha inicial para filtrar las ventas
         :param hasta: Fecha final para filtrar
         """
-        from modules.clientes.clientes_repository import ClientesRepository
-        clientes_repo = ClientesRepository()
-        ciudades: List[str] = list(clientes_repo.ciudades)
-        departamentos: Dict[str, str] = dict(clientes_repo._dao.departamentos)
+
+        ciudades: List[str] = list(map(lambda x: x.ciudad, self._repository.get_all()))
+        departamentos: Dict[str, str] = self._repository._dao.departamentos
         ventas_ciudades = dict()
         for ciudad in ciudades:
             ventas_ciudades[ciudad] = 0

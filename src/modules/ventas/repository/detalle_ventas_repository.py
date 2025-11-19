@@ -1,19 +1,22 @@
 import csv, logging
-from typing import Any, Dict, List
-from modules.ventas.repository.detalle_ventas_dao import DetalleVentasDao
+from typing import Any, Dict, List, TYPE_CHECKING
 from modules.ventas.models.detalle_venta_model import DetalleVentaModel
+
+if TYPE_CHECKING:
+    from modules import DbConnection
+    from modules.db.dao.detalle_ventas_dao import DetalleVentasDao
 
 logger = logging.getLogger(__name__)
 
 class DetalleVentasRepository:
-    def __init__(self):
-        self._dao = DetalleVentasDao()
+    def __init__(self, db: 'DbConnection'):
+        self._dao: 'DetalleVentasDao' = db.detalleVentasDao
     
     def get_all(self) -> List[DetalleVentaModel]:
         """
         Returns all the ventas stored in the repository.
         """
-        return [DetalleVentaModel(*dv) for dv in self._dao.get_all()]
+        return self._dao.get_all()
     
     def get_by_id_venta(self, id_venta: int) -> List[DetalleVentaModel]:
         """
@@ -21,7 +24,7 @@ class DetalleVentasRepository:
 
         :param id_venta: The id of the venta to retrieve.
         """
-        return [DetalleVentaModel(*dv) for dv in self._dao.get_by_venta(id_venta)]
+        return self._dao.get_by_venta(id_venta)
     
     def get_by_id_producto(self, id_producto: int) -> List[DetalleVentaModel]:
         """
@@ -29,7 +32,7 @@ class DetalleVentasRepository:
 
         :param id_producto: The id of the producto to retrieve
         """
-        return [DetalleVentaModel(*dv) for dv in self._dao.get_by_producto(id_producto)]
+        return self._dao.get_by_producto(id_producto)
 
     def agregar(self, detalle_venta: DetalleVentaModel):
         """

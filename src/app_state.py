@@ -1,4 +1,4 @@
-from modules import VentasService, ProductoService, ClienteService
+from modules import VentasService, ProductoService, ClienteService, DbConnection
 import logging
 
 # logging.basicConfig(
@@ -14,23 +14,20 @@ class App:
     the top-level Streamlit UI code in `index.py` (prevents circular imports).
     """
     def __init__(self):
-        self.ventas_service = VentasService()
-        self.productos_service = ProductoService()
-        self.clientes_service = ClienteService()
+        db = DbConnection()  # Initialize the
+        self.ventas_service = VentasService(db)
+        self.productos_service = ProductoService(db)
+        self.clientes_service = ClienteService(db)
 
 
 app = App()
 
-# Testing the services
-# cliente1 = app.clientes_service.buscar_por_id(1)
-# print(cliente1)
-# ventas_cliente1 = cliente1.ventas
-# print(ventas_cliente1[0].detalle)
+#Testing the services
+cliente1 = app.clientes_service.buscar_por_id(2)
+print(cliente1)
+ventas_cliente1 = cliente1.ventas
+print(ventas_cliente1[0].detalle)
 
 # producto = app.productos_service.get_by_id(1)
 # print(producto)
 # print(producto.ventas)
-# db = ClientesDao()
-# db.initialize()
-# db._load_from_csv()
-# print(db.get_all_clientes())

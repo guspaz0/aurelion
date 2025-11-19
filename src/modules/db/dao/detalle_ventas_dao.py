@@ -1,16 +1,24 @@
 import pathlib, logging, csv
-from modules.db.db_connection import db
+from sqlite3 import Connection
 from typing import List, Dict, Any, Tuple
+from modules.ventas.models.detalle_venta_model import DetalleVentaModel
 
 logger = logging.getLogger(__file__)
 
-class DetalleVentasDao:
-    def __init__(self):
-        self.conn = db.get_connection()
-        self.db_path = (pathlib.Path(__file__).parents[4] / "bd" / "detalle_ventas.csv").resolve()
-        self.initialize()
+GET_ALL = 'SELECT * FROM detalle_ventas_view'
+COUNT = "SELECT COUNT(*) FROM detalle_ventas"
+INSERT = '''
+    INSERT INTO detalle_ventas(id_venta, id_producto, cantidad, precio_unitario)
+            VALUES (?, ?, ?, ?)
+'''
 
-    def initialize(self):
+class DetalleVentasDao:
+    def __init__(self, conn: 'Connection'):
+        self.conn = conn
+        self.db_path = (pathlib.Path(__file__).parents[4] / "bd" / "detalle_ventas.csv").resolve()
+        self._initialize()
+
+    def _initialize(self):
         with self.conn as conn:
             cursor = conn.cursor()
             cursor.execute('''
@@ -28,28 +36,36 @@ class DetalleVentasDao:
         if self.count() == 0:
             self._load_from_csv()
     
-    def count(self):
+    def count(self) -> int:
         with self.conn as conn:
             cursor = conn.cursor()
-            (count,) = cursor.execute("SELECT COUNT(*) FROM detalle_ventas").fetchone()
+            (count,) = cursor.execute(COUNT).fetchone()
             cursor.close()
             return count
-        
-    def get_all(self):
+    
+    def _create_view(self):
+        with self.conn as conn:
+            cursor = conn.cursor()
+            cursor.execute('''CREATE VIEW IF NOT EXISTS detalle_venta_view AS SELECT
+                dv.id_venta as id_venta,
+                dv.id_producto as id_producto,
+                p.nombre_producto as nombre_producto,
+                dv.cantidad as cantidad,
+                dv.precio_unitario as precio_unitario,
+                (dv.cantidad * dv.precio_unitario) as importe,
+                v.fecha as fecha
+            FROM detalle_ventas dv 
+            LEFT JOIN productos p ON dv.id_producto = p.id_producto
+            LEFT JOIN ventas v ON v.id_venta = dv.id_venta''')
+            conn.commit()
+            cursor.close()
+
+    def get_all(self) -> List[DetalleVentaModel]:
         with self.conn as conn:
             try:
                 cursor = conn.cursor()
-                data = cursor.execute('''SELECT
-                        dv.id_venta as id_venta,
-                        dv.id_producto as id_producto,
-                        p.nombre_producto as nombre_producto,
-                        dv.cantidad as cantidad,
-                        dv.precio_unitario as precio_unitario,
-                        (dv.cantidad * dv.precio_unitario) as importe
-                    FROM detalle_ventas dv 
-                    LEFT JOIN productos p ON dv.id_producto = p.id_producto
-                ''').fetchall()
-                return data
+                data = cursor.execute(GET_ALL).fetchall()
+                return [DetalleVentaModel(*detalle) for detalle in data]
             except Exception as e:
                 logger.error(f"Error fetching all detalle ventas: {e}")
             finally:
@@ -59,47 +75,26 @@ class DetalleVentasDao:
         with self.conn as conn:
             cursor = conn.cursor()
             try:
-                cursor.execute('''
-                    INSERT INTO detalle_ventas(id_venta, id_producto, cantidad, precio_unitario)
-                            VALUES (?, ?, ?, ?)
-                ''', (id_venta, id_producto, cantidad, precio_unitario))
+                cursor.execute(INSERT, (id_venta, id_producto, cantidad, precio_unitario))
                 conn.commit()
             except Exception as e:
                 logger.error(f"Error inserting detalle venta: {e}")
             finally:
                 cursor.close()
     
-    def get_by_venta(self, id_venta: int) -> List[Tuple]:
+    def get_by_venta(self, id_venta: int) -> List[DetalleVentaModel]:
         with self.conn as conn:
             cursor = conn.cursor()
-            data = cursor.execute('''SELECT
-                        dv.id_venta as id_venta,
-                        dv.id_producto as id_producto,
-                        p.nombre_producto as nombre_producto,
-                        dv.cantidad as cantidad,
-                        dv.precio_unitario as precio_unitario,
-                        (dv.cantidad * dv.precio_unitario) as importe
-                    FROM detalle_ventas dv 
-                    LEFT JOIN productos p ON dv.id_producto = p.id_producto
-                    WHERE id_venta = ?''', (id_venta,)).fetchall()
+            data = cursor.execute(GET_ALL+' WHERE id_venta = ?', (id_venta,)).fetchall()
             cursor.close()
-            return data
+            return [DetalleVentaModel(*detalle) for detalle in data]
     
-    def get_by_producto(self, id_producto: int) -> List[Tuple]:
+    def get_by_producto(self, id_producto: int) -> List[DetalleVentaModel]:
         with self.conn as conn:
             cursor = conn.cursor()
-            data = cursor.execute('''SELECT 
-                        dv.id_venta as id_venta,
-                        dv.id_producto as id_producto,
-                        p.nombre_producto as nombre_producto,
-                        dv.cantidad as cantidad,
-                        dv.precio_unitario as precio_unitario,
-                        (dv.cantidad * dv.precio_unitario) as importe
-                    FROM detalle_ventas dv 
-                    LEFT JOIN productos p ON dv.id_producto = p.id_producto
-                    WHERE id_producto = ?''', (id_producto,)).fetchall()
+            data = cursor.execute(GET_ALL+' WHERE id_producto = ?', (id_producto,)).fetchall()
             cursor.close()
-            return data
+            return [DetalleVentaModel(*detalle) for detalle in data]
         
     def _load_from_csv(self):
         """

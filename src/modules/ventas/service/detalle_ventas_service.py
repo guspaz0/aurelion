@@ -5,10 +5,11 @@ from modules.ventas.repository.detalle_ventas_repository import DetalleVentasRep
 
 if TYPE_CHECKING:
     from modules.ventas.models.detalle_venta_model import DetalleVentaModel
+    from modules.db.db_connection import DbConnection
 
 class DetalleVentasService:
-    def __init__(self):
-        self._repository = DetalleVentasRepository()
+    def __init__(self, db: 'DbConnection'):
+        self._repository = DetalleVentasRepository(db)
 
     def get_all(self) -> List['DetalleVentaModel']:
         """Retorna todos los detalles de ventas en la base de datos."""
