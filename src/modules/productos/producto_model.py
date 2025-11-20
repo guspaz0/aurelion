@@ -4,7 +4,7 @@ import json
 from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from modules.ventas.models.detalle_venta_model import DetalleVentaModel
+    from modules.ventas.detalle_venta_model import DetalleVentaModel
 
 @dataclass
 class ProductoModel:
@@ -12,14 +12,38 @@ class ProductoModel:
     nombre_producto: str
     categoria: str
     precio_unitario: float
-    ventas: List['DetalleVentaModel'] = field(default_factory=lambda values: list(map(lambda venta: DetalleVentaModel(**venta),values)))
+    ventas: List['DetalleVentaModel'] = field(default_factory=list)
 
-    @property
-    def total_vendido(self):
-        return self._total_vendido
+    def __post_init__(self):
+        if self.ventas is None:
+            self.ventas = []
+        else:
+            from modules.ventas.detalle_venta_model import DetalleVentaModel
+            raw = self.ventas
+            if isinstance(raw, str):
+                try:
+                    raw = json.loads(raw)
+                except Exception:
+                    raw = []
+            elif not isinstance(raw, list):
+                # Puede ser un file-like o similar
+                try:
+                    raw = json.load(raw)
+                except Exception:
+                    raw = []
+            normalized: List[DetalleVentaModel] = []
+            for item in raw:
+                if isinstance(item, DetalleVentaModel):
+                    normalized.append(item)
+                elif isinstance(item, dict):
+                    normalized.append(DetalleVentaModel(**item))
+                else:
+                    # ignorar elementos no reconocidos
+                    continue
 
-    @total_vendido.setter
-    def total_vendido(self, desde: datetime | str = None, hasta: datetime | str = None) -> Dict[str, int | float]:
+            self.ventas = normalized
+
+    def total_ventas(self, desde: datetime | str = None, hasta: datetime | str = None) -> Dict[str, int | float]:
         """
         Retorna el total vendido de este producto entre las fechas especificadas o todas las fechas si no se especifican.
 
@@ -40,7 +64,7 @@ class ProductoModel:
         for venta in ventas:
             cantidad += int(venta.cantidad)
             importe += float(venta.precio_unitario) * int(venta.cantidad)
-        self._total_vendido = {"cantidad": cantidad, "importe": importe}
+        return {"cantidad": cantidad, "importe": importe}
 
     def to_dict(self):
         """

@@ -1,7 +1,7 @@
 import pathlib, logging, csv
 from sqlite3 import Connection
 from typing import List, Dict, Any, Tuple
-from modules.ventas.models.detalle_venta_model import DetalleVentaModel
+from modules.ventas.detalle_venta_model import DetalleVentaModel
 
 logger = logging.getLogger(__file__)
 
@@ -15,7 +15,7 @@ INSERT = '''
 class DetalleVentasDao:
     def __init__(self, conn: 'Connection'):
         self.conn = conn
-        self.db_path = (pathlib.Path(__file__).parents[4] / "bd" / "detalle_ventas.csv").resolve()
+        self.db_path = (pathlib.Path(__file__).parents[3] / "bd" / "detalle_ventas.csv").resolve()
         self._initialize()
 
     def _initialize(self):
@@ -32,6 +32,7 @@ class DetalleVentasDao:
                     FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
                 )
             ''')
+            conn.commit()
             cursor.close()
         if self.count() == 0:
             self._load_from_csv()

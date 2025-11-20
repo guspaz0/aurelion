@@ -3,14 +3,20 @@ from datetime import datetime
 import json
 
 @dataclass
-class DetalleVentaModel():
+class DetalleVentaModel:
     id_venta: int
     id_producto: int
     nombre_producto: str
     cantidad: int
     precio_unitario: float
     importe: float
-    fecha: datetime = field(default_factory=lambda value: datetime.strptime(value, '%Y-%m-%d'))
+    fecha: datetime = field(default_factory=datetime)
+
+    def __post_init__(self):
+        if not self.fecha:
+            self.fecha = None
+        else:
+            self.fecha = datetime.strptime(self.fecha, '%Y-%m-%d')
 
     def to_dict(self):
         """

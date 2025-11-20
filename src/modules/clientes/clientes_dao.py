@@ -5,8 +5,9 @@ from modules.clientes.cliente_model import ClienteModel
 
 logger = logging.getLogger(__file__)
 
-GET_ALL = '''SELECT * FROM clientes'''
+GET_ALL = 'SELECT * FROM clientes_detalle_view'
 COUNT = "SELECT count(*) FROM clientes"
+GET_CIUDADES = "SELECT DISTINCT ciudad FROM clientes"
 
 class ClientesDao:
     def __init__(self, conn: Connection):
@@ -30,7 +31,7 @@ class ClientesDao:
                     nombre_cliente TEXT NOT NULL,
                     email TEXT NOT NULL,
                     ciudad TEXT NOT NULL,
-                    departamento TEXT NOT NULL,
+                    departamento TEXT,
                     fecha_alta TEXT NOT NULL,
                     FOREIGN KEY(ciudad) REFERENCES ciudades(nombre_ciudad)
                 )
@@ -38,6 +39,31 @@ class ClientesDao:
             conn.commit()
             if self.count() == 0:
                 self._load_from_csv()
+            cursor.close()
+    
+    def _create_view(self):
+        with self.conn as conn:
+            cursor = conn.cursor()
+            cursor.execute('''CREATE VIEW IF NOT EXISTS clientes_detalle_view AS SELECT 
+                c.*, 
+                CASE 
+                WHEN vdv.id_cliente IS NULL THEN json_array()
+                ELSE json_group_array(json_object(
+                    'id_venta', vdv.id_venta,
+                    'id_cliente', vdv.id_cliente,
+                    'nombre_cliente', vdv.nombre_cliente,
+                    'email', vdv.email,
+                    'medio_pago', vdv.medio_pago,
+                    'ciudad', vdv.ciudad,
+                    'fecha', vdv.fecha,
+                    'importe', vdv.importe,
+                    'detalle', vdv.detalle
+                ))
+                END as ventas
+                FROM clientes c 
+                LEFT JOIN ventas_detalles_view vdv ON c.id_cliente = vdv.id_cliente
+                GROUP BY c.id_cliente''')
+            conn.commit()
             cursor.close()
 
     def insert_cliente(self, id_cliente, nombre_cliente, email, ciudad, departamento, fecha_alta):
@@ -63,14 +89,9 @@ class ClientesDao:
     
     def get_by_id(self, id_cliente: int) -> ClienteModel:
         with self.conn as conn:
-            try:
-                cursor = conn.cursor()
-                data = cursor.execute(GET_ALL+' WHERE id_cliente = ?',(id_cliente,)).fetchone()
-                return ClienteModel(*data)
-            except Exception as e:
-                logger.error(f"Error getting cliente by id: {e}")
-            finally:
-                cursor.close()
+            cursor = conn.cursor()
+            data = cursor.execute(GET_ALL+' WHERE id_cliente = ?',(id_cliente,)).fetchone()
+            return ClienteModel(*data)
 
     def count(self) -> int:
         with self.conn as conn:
@@ -87,7 +108,7 @@ class ClientesDao:
     def get_ciudades(self) -> List[str]:
         with self.conn as conn:
             cursor = conn.cursor()
-            data = cursor.execute("SELECT DISTINCT ciudad FROM clientes").fetchall()
+            data = cursor.execute(GET_CIUDADES).fetchall()
             cursor.close()
             return [ciudad for (ciudad,) in data]
 

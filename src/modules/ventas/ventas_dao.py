@@ -1,7 +1,7 @@
 import csv, logging, pathlib
 from typing import List, Dict, Any, Tuple, TYPE_CHECKING
 from datetime import datetime, date
-from modules.ventas.models.venta_model import VentaModel
+from modules.ventas.venta_model import VentaModel
 
 if TYPE_CHECKING:
     from modules.db.db_connection import DbConnection
@@ -14,7 +14,7 @@ class VentasDao:
     def __init__(self, db: 'DbConnection'):
         self.departamentos = db.clientesDao.departamentos
         self.conn = db.get_connection()
-        self.csv_path = (pathlib.Path(__file__).parents[4] / "bd" / "ventas.csv").resolve()
+        self.csv_path = (pathlib.Path(__file__).parents[3] / "bd" / "ventas.csv").resolve()
     
     def _initialize(self):
         with self.conn as conn:
@@ -40,12 +40,12 @@ class VentasDao:
                 CREATE VIEW IF NOT EXISTS ventas_detalles_view AS
                 SELECT 
                     v.id_venta as id_venta,
-                    v.fecha as fecha,
                     v.id_cliente as id_cliente,
                     c.nombre_cliente as nombre_cliente,
                     c.email as email,
                     v.medio_pago as medio_pago,
                     c.ciudad as ciudad,
+                    v.fecha as fecha,
                     SUM(dv.cantidad * dv.precio_unitario) as importe,
                     json_group_array(json_object(
                         'id_venta', dv.id_venta,
@@ -81,7 +81,7 @@ class VentasDao:
                 ).fetchall()
             ventas = [VentaModel(*venta) for venta in data]
             for venta in ventas:
-                venta.departamento = self.departamentos[venta.ciudad]
+                venta.departamento = self.departamentos[venta.ciudad.lower()]
             return ventas
 
     
@@ -91,7 +91,7 @@ class VentasDao:
             data = cursor.execute(GET_ALL+' WHERE id_venta = ?', (id_venta,)).fetchone()
             cursor.close()
             venta = VentaModel(*data)
-            venta.departamento = self.departamentos[venta.ciudad]
+            venta.departamento = self.departamentos[venta.ciudad.lower()]
             return venta
     
     def get_by_cliente(self, id_cliente: int) -> List[VentaModel]:
@@ -123,8 +123,13 @@ class VentasDao:
     
     def total_ventas_grouped_by_medio_de_pago(self, desde = None,hasta = None) -> Dict[str,float]:
         with self.conn as conn:
-            cusor = conn.cursor()
-            query = "SELECT medio_pago, SUM(total) FROM ventas"
+            cursor = conn.cursor()
+            query = '''SELECT medio_pago, SUM(importe) 
+                FROM ventas_detalle_view BETWEEN ? AND ? 
+                GROUP BY medio_pago'''
+            data = cursor.execute(query, (desde,hasta,))
+            cursor.close()
+            return data
 
     def _load_from_csv(self):
         """

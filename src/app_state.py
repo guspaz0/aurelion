@@ -1,11 +1,9 @@
-from modules import VentasService, ProductoService, ClienteService, DbConnection
+from modules import DbConnection
 import logging
 
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format='\x1b[36m%(asctime)s\x1b[0m │ %(levelname)s │ \x1b[90m%(module)s:%(lineno)s\x1b[0m │ %(funcName)s │ %(message)s',
-#     datefmt='%Y-%m-%d %H:%M:%S'
-# )
+from modules.ventas.ventas_service import VentasService
+from modules.clientes.cliente_service import ClienteService
+from modules.productos.producto_service import ProductoService
 
 class App:
     """Simple container for service instances used by pages.
@@ -16,18 +14,7 @@ class App:
     def __init__(self):
         db = DbConnection()  # Initialize the
         self.ventas_service = VentasService(db)
-        self.productos_service = ProductoService(db)
-        self.clientes_service = ClienteService(db)
-
+        self.productos_service = ProductoService(db.productosDao)
+        self.clientes_service = ClienteService(db.clientesDao)
 
 app = App()
-
-#Testing the services
-cliente1 = app.clientes_service.buscar_por_id(2)
-print(cliente1)
-ventas_cliente1 = cliente1.ventas
-print(ventas_cliente1[0].detalle)
-
-# producto = app.productos_service.get_by_id(1)
-# print(producto)
-# print(producto.ventas)

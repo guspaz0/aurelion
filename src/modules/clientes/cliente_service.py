@@ -1,20 +1,20 @@
-from datetime import datetime
+from datetime import datetime, date
 from inspect import _void
 from typing import Any, Dict, List, TYPE_CHECKING
-from . import ClienteModel, ClientesRepository
+from . import ClienteModel
 
 if TYPE_CHECKING:
-    from modules import DbConnection
+    from modules.clientes.clientes_dao import ClientesDao
 
 class ClienteService:
-    def __init__(self, db: 'DbConnection'):
-        self.repository = ClientesRepository(db)
+    def __init__(self, dao: 'ClientesDao'):
+        self._dao = dao
 
     def get_all(self) -> List[ClienteModel]:
         """
         Retorna todos los clientes en la base de datos.
         """
-        return self.repository.get_all()
+        return self._dao.get_all()
     
     def buscar_por_id(self, id_cliente: int) -> ClienteModel:
         """
@@ -22,7 +22,7 @@ class ClienteService:
 
         :param id: El id del cliente a buscar.
         """
-        return self.repository.buscar_por_id(id_cliente)
+        return self._dao.get_by_id(id_cliente)
     
     def agregar(self, cliente: Dict[str, Any]) -> ClienteModel:
         """
@@ -30,9 +30,10 @@ class ClienteService:
 
         :param cliente: El diccionario con los datos del cliente.
         """
-        cliente = ClienteModel(**cliente)
-        self.repository.agregar(cliente)
-        return cliente
+        nuevo_cliente = ClienteModel(**cliente)
+        id = self._dao.insert_cliente(**cliente)
+        nuevo_cliente.id_cliente = id
+        return nuevo_cliente
     
     def total_ventas(self, desde: datetime | str = None, hasta: datetime | str = None) -> List[Dict[str, str | int | float]]:
         """
@@ -41,6 +42,13 @@ class ClienteService:
         :param desde: La fecha inicial del rango. Si no se especifica, se considera la totalidad de los registros.
         :param hasta: La fecha final del rango. Si no se especifica, se considera la totalidad de los registros.
         """
+        if all(isinstance(fecha, str) for fecha in (desde,hasta)):
+            desde = datetime.strptime(desde, "%Y-%m-%d")
+            hasta = datetime.strptime(hasta, "%Y-%m-%d")
+        if all(isinstance(fecha, date) for fecha in (desde, hasta)):
+            desde = datetime.strptime(desde.strftime("%Y-%m-%d"), "%Y-%m-%d")
+            hasta = datetime.strptime(hasta.strftime("%Y-%m-%d"), "%Y-%m-%d")
+        
         clientes = map(lambda x: {**x.to_dict(), **x.total_ventas(desde,hasta)}, self.get_all())
         clientes = list(filter(lambda x: x['importe'] != 0, clientes))
         

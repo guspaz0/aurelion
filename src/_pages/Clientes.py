@@ -12,7 +12,7 @@ st.set_page_config(
     layout="wide"
 )
 
-ROWS: int = 10
+ROWS: int = 9
 
 def get_top_customers(desde, hasta):
     return app.clientes_service.total_ventas(desde,hasta)[:ROWS]
@@ -34,6 +34,10 @@ def top_clientes():
     st.write(f"Importe total vendido por clientes {f_desde.strftime('%Y-%m-%d')} - {f_hasta.strftime('%Y-%m-%d')}")
 
     top_customers = get_top_customers(f_desde,f_hasta)
+    medio_de_pago = app.ventas_service._dao.get_medios_de_pago()
+    for cliente in top_customers:
+        for medio in medio_de_pago:
+            cliente[medio] = cliente.get(medio, 0)
 
     df = pd.DataFrame(
         data=[cliente.values() for cliente in top_customers],
