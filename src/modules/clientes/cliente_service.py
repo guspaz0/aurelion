@@ -1,10 +1,10 @@
 from datetime import datetime, date
 from inspect import _void
 from typing import Any, Dict, List, TYPE_CHECKING
-from . import ClienteModel
+from .cliente_model import ClienteModel
 
 if TYPE_CHECKING:
-    from modules.clientes.clientes_dao import ClientesDao
+    from .clientes_dao import ClientesDao
 
 class ClienteService:
     def __init__(self, dao: 'ClientesDao'):

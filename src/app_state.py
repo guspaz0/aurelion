@@ -1,15 +1,14 @@
-from modules import DbConnection
-import logging
-
+from modules.db.db_connection import DbConnection
 from modules.ventas.ventas_service import VentasService
 from modules.clientes.cliente_service import ClienteService
 from modules.productos.producto_service import ProductoService
+
 
 class App:
     """Simple container for service instances used by pages.
 
     This module exists so pages can import `app` without triggering
-    the top-level Streamlit UI code in `index.py` (prevents circular imports).
+    the top-level Streamlit UI code in `main.py` (prevents circular imports).
     """
     def __init__(self):
         db = DbConnection()  # Initialize the

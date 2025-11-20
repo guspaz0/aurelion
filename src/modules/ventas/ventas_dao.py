@@ -1,10 +1,10 @@
 import csv, logging, pathlib
 from typing import List, Dict, Any, Tuple, TYPE_CHECKING
 from datetime import datetime, date
-from modules.ventas.venta_model import VentaModel
+from .venta_model import VentaModel
 
 if TYPE_CHECKING:
-    from modules.db.db_connection import DbConnection
+    from ..db.db_connection import DbConnection
 
 logger = logging.getLogger(__file__)
 

@@ -1,2 +1,3 @@
+from modules.clientes.clientes_dao import ClientesDao
 from modules.clientes.cliente_model import ClienteModel
 from modules.clientes.cliente_service import ClienteService

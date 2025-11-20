@@ -1,6 +1,6 @@
 import pathlib, logging, csv
 from typing import List, Dict, Any, Tuple, TYPE_CHECKING
-from modules.productos.producto_model import ProductoModel
+from .producto_model import ProductoModel
 
 if TYPE_CHECKING:
     from sqlite3 import Connection
@@ -13,7 +13,7 @@ INSERT = '''
         VALUES (?, ?, ?, ?);
 '''
 
-class ProductosDao:
+class ProductoDao:
     def __init__(self, conn: 'Connection'):
         self.conn = conn
         self.csv_path = (pathlib.Path(__file__).parents[3] / "bd" / "productos.csv").resolve()
@@ -50,15 +50,18 @@ class ProductosDao:
                 p.nombre_producto as nombre_producto,
                 p.categoria as categoria,
                 p.precio_unitario as precio_unitario,
-                json_group_array(json_object(
-                    'id_venta', dv.id_venta,
-                    'id_producto', dv.id_producto,
-                    'nombre_producto', p.nombre_producto,
-                    'cantidad', dv.cantidad,
-                    'precio_unitario', dv.precio_unitario,
-                    'importe', (dv.cantidad * dv.precio_unitario),
-                    'fecha', v.fecha
-                )) as ventas
+                CASE 
+                    WHEN dv.id_producto IS NULL THEN json_array()
+                    ELSE json_group_array(json_object(
+                        'id_venta', dv.id_venta,
+                        'id_producto', dv.id_producto,
+                        'nombre_producto', p.nombre_producto,
+                        'cantidad', dv.cantidad,
+                        'precio_unitario', dv.precio_unitario,
+                        'importe', (dv.cantidad * dv.precio_unitario),
+                        'fecha', v.fecha
+                    )) 
+                END as ventas
             FROM productos p
             LEFT JOIN detalle_ventas dv ON p.id_producto = dv.id_producto
             LEFT JOIN ventas v ON dv.id_venta = v.id_venta

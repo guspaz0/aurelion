@@ -1,7 +1,7 @@
 import sqlite3, pathlib, logging
 import threading
 from modules.clientes.clientes_dao import ClientesDao
-from modules.productos.productos_dao import ProductosDao
+from modules.productos.producto_dao import ProductoDao
 from modules.ventas.ventas_dao import VentasDao
 from modules.ventas.detalle_ventas_dao import DetalleVentasDao
 
@@ -22,7 +22,7 @@ class DbConnection:
         logger.info("Connected to database (check_same_thread=False)")
         self.clientesDao = ClientesDao(self.conn)
         self.detalleVentasDao = DetalleVentasDao(self.conn)
-        self.productosDao = ProductosDao(self.conn)
+        self.productosDao = ProductoDao(self.conn)
         self.ventasDao = VentasDao(self)
         self._initialize()
 

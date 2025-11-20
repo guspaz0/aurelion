@@ -56,4 +56,61 @@ Conteo de líneas (incluye encabezado) en los CSV provistos en `src/bd/`:
 
 Total aproximado de registros (sin contar encabezados): 660 filas.
 
+
 Nota sobre escala: es un dataset pequeño, adecuado para prácticas y demostraciones. El flujo diseñado prioriza claridad, validación y trazabilidad más que optimizaciones de rendimiento a gran escala.
+
+
+# Entrega 2: Actualizacion
+
+## Migración de datos: CSV → SQLite
+
+- **Resumen:** el proyecto incluye un flujo sencillo para migrar los datos originales en CSV a una base de datos SQLite (`src/bd/bd.sqlite`). La migración valida, normaliza y carga los archivos CSV (`clientes.csv`, `productos.csv`, `ventas.csv`, `detalle_ventas.csv`) en tablas relacionales y crea vistas útiles para análisis.
+
+- **Cómo funciona (alto nivel):**
+    - Al inicializar la aplicación (instanciando `App` en `src/app_state.py`) se crea una conexión gestionada por `modules.db.db_connection.DbConnection`.
+    - `DbConnection` crea las tablas necesarias y llama a los métodos `_load_from_csv()` de cada DAO (`ClientesDao`, `ProductoDao`, `VentasDao`, `DetalleVentasDao`) cuando las tablas están vacías.
+    - Cada DAO valida y transforma los datos (tipos, fechas, recomputación de importes) antes de insertarlos en la base.
+
+- **Reproducir la migración (rápido):** ejecutar desde la raíz del proyecto con `src` en `PYTHONPATH`:
+
+```bash
+PYTHONPATH=src python3 -c "from app_state import App; App()"
+```
+
+- **Notas:** revisa los CSV por inconsistencias antes de la migración; por defecto los DAOs insertan registros según los CSV (no realizan deduplicación avanzada). Para ETL más robusto, extrae y extiende los `_load_from_csv()` o añade un paso previo de limpieza.
+
+
+**Análisis Exploratorio de Datos (EDA)**
+
+- **Objetivo:** entender la calidad y las características principales de los datos (clientes, productos, ventas y detalle de ventas) para guiar limpieza, normalización y análisis posteriores.
+
+- **Estadísticas descriptivas básicas calculadas:** conteo, media, mediana, desviación estándar, mínimo, máximo y percentiles para variables numéricas (por ejemplo `precio_unitario`, `cantidad`, `importe`), y tablas de frecuencia para variables categóricas (`categoria`, `medio_pago`, `ciudad`).
+
+- **Identificación del tipo de distribución de variables:** inspección visual mediante histogramas y QQ-plots; pruebas estadísticas opcionales (Shapiro-Wilk, Kolmogorov-Smirnov) para caracterizar si variables siguen distribuciones aproximadas (normal, log-normal, etc.).
+
+- **Análisis de correlaciones entre variables principales:** cálculo de correlaciones de Pearson y Spearman según corresponda; matriz de correlación y mapa de calor (heatmap) para identificar relaciones entre `precio_unitario`, `cantidad`, `importe` y agregados por producto/cliente.
+
+- **Detección de outliers (valores extremos):** identificación mediante IQR (1.5×IQR) y puntuaciones Z; revisión de casos atípicos para decidir si corregir, recomputar o excluir (p. ej. `importe` que no coincide con `cantidad * precio_unitario`).
+
+- **Gráficos representativos (al menos 3):**
+    - Histogramas de `precio_unitario` y `importe` (distribución de precios e importes)
+    - Boxplots por `categoria` para comparar dispersión y detectar outliers por categoría
+    - Heatmap de correlaciones entre variables numéricas
+    - (Adicionales recomendados) Series temporales de ventas, mapa/tabla de ventas por `ciudad`, gráfico de barras de productos más vendidos
+
+- **Interpretación de resultados orientada al problema:** cada resultado del EDA debe traducirse a acciones concretas: recategorización de productos con incoherencias, recomputación de importes erróneos, identificación de clientes o periodos atípicos que requieren limpieza o verificación, y recomendaciones para mejorar la calidad de los CSV de origen.
+
+- **Reproducir el EDA:** existe el notebook `src/prueba_entidades.ipynb` que puede usarse como punto de partida para visualizar y calcular las métricas anteriores. Pasos rápidos:
+
+```bash
+# (1) Crear e activar entorno si no está activo
+python3 -m venv .venv
+source .venv/bin/activate
+
+# (2) Instalar dependencias (si no están en `src/requirements.txt`, instalar pandas, matplotlib, seaborn, scipy)
+pip install -r src/requirements.txt || pip install pandas matplotlib seaborn scipy
+
+# (3) Abrir el notebook
+python3 -m jupyter notebook src/prueba_entidades.ipynb
+```
+

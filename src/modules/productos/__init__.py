@@ -1,2 +1,3 @@
 from modules.productos.producto_model import ProductoModel
 from modules.productos.producto_service import ProductoService
+from modules.productos.producto_dao import ProductoDao

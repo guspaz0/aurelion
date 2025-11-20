@@ -1,7 +1,7 @@
 import pathlib, logging, csv
 from sqlite3 import Connection, OperationalError
 from typing import List, Dict, Any, Tuple
-from modules.clientes.cliente_model import ClienteModel
+from .cliente_model import ClienteModel
 
 logger = logging.getLogger(__file__)
 

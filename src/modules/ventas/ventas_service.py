@@ -5,9 +5,9 @@ from typing import Dict, List, TYPE_CHECKING
 logger = logging.getLogger(__file__)
 
 if TYPE_CHECKING:
-    from modules.ventas.venta_model import VentaModel
-    from modules.ventas.ventas_dao import VentasDao
-    from modules import DbConnection
+    from .venta_model import VentaModel
+    from .ventas_dao import VentasDao
+    from ..db.db_connection import DbConnection
 
 class VentasService:
     def __init__(self, db: 'DbConnection'):

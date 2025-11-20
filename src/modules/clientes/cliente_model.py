@@ -6,7 +6,7 @@ from typing import Dict, List, TYPE_CHECKING
 logger = logging.getLogger(__file__)
 
 if TYPE_CHECKING:
-    from modules.ventas.venta_model import VentaModel
+    from ..ventas.venta_model import VentaModel
 
 @dataclass
 class ClienteModel:
@@ -24,7 +24,7 @@ class ClienteModel:
             self.ventas = []
         else:
             # importar en tiempo de ejecución para evitar problemas de importación circular
-            from modules.ventas.venta_model import VentaModel
+            from ..ventas.venta_model import VentaModel
 
             raw = self.ventas
             if isinstance(raw, str):
@@ -52,7 +52,7 @@ class ClienteModel:
     
     def total_ventas(self, desde: datetime = None, hasta: datetime = None) -> float:
         """ Retorna el total de ventas realizadas por el cliente en el rango de fechas especificado """
-        medios_de_pago: dict = {}
+        medios_de_pago: dict = {'transferencia': 0, 'tarjeta': 0, 'qr': 0, 'efectivo': 0}
         ventas: List['VentaModel'] = self.ventas
         importe: float = 0
         if all(isinstance(fecha, str) for fecha in (desde,hasta)):
@@ -67,6 +67,7 @@ class ClienteModel:
         for venta in ventas:
             medios_de_pago[venta.medio_pago] = medios_de_pago.get(venta.medio_pago, 0) + venta.importe
             importe += venta.importe
+
         return { "importe": importe, "cantidad_ventas": len(ventas), **medios_de_pago }
     
     def to_dict(self):
@@ -78,6 +79,7 @@ class ClienteModel:
             "nombre_cliente": self.nombre_cliente,
             "email": self.email,
             "ciudad": self.ciudad,
+            "departamento": self.departamento,
             "fecha_alta": self.fecha_alta,
             "ventas": [venta.to_dict() for venta in self.ventas] if self.ventas else []
         }

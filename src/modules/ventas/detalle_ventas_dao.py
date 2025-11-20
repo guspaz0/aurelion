@@ -1,7 +1,7 @@
 import pathlib, logging, csv
 from sqlite3 import Connection
 from typing import List, Dict, Any, Tuple
-from modules.ventas.detalle_venta_model import DetalleVentaModel
+from .detalle_venta_model import DetalleVentaModel
 
 logger = logging.getLogger(__file__)
 

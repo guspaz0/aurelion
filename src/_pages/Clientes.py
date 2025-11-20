@@ -35,16 +35,17 @@ def top_clientes():
 
     top_customers = get_top_customers(f_desde,f_hasta)
     medio_de_pago = app.ventas_service._dao.get_medios_de_pago()
-    for cliente in top_customers:
-        for medio in medio_de_pago:
-            cliente[medio] = cliente.get(medio, 0)
+    for i,cliente in enumerate(iter(top_customers)):
+        print(cliente)
+        # for medio in medio_de_pago:
+        #     top_customers[i][medio] = top_customers[i].get(medio, 0)
 
     df = pd.DataFrame(
         data=[cliente.values() for cliente in top_customers],
         columns=top_customers[0].keys()
     )
 
-    df.drop(columns=["email", "fecha_alta", "cantidad_ventas", "ciudad"], inplace=True)    
+    df.drop(columns=["email", "fecha_alta", "cantidad_ventas", "ciudad", "departamento"], inplace=True)
 
     # If there are no top customers, stop early
     if df.empty:

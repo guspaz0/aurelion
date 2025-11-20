@@ -11,18 +11,21 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
 clientes = st.Page("_pages/Clientes.py", title="Clientes", icon="👤")
 mapa_ventas = st.Page("_pages/MapaVentas.py", title="Mapa Ventas", icon="📍")
 ventas = st.Page("_pages/Ventas.py", title="Ventas", icon="📈")
 home_page = st.Page("_pages/home.py", title="Home", icon="🏠", default=True)
 productos = st.Page("_pages/Productos.py", title="Productos", icon="📦")
 documentacion = st.Page("_pages/Documentacion.py", title="Documentación", icon="📖")
+analisisEDA = st.Page("_pages/analisisEda.py", title="Analisis EDA", icon="📊")
 
 def run_app():
     try:
         pg = st.navigation({
             "Home": [home_page],  # default page
             "Reportes": [ventas, mapa_ventas, clientes, productos],
+            "Analisis EDA": [analisisEDA],
             "Documentación": [documentacion]
         }, position="sidebar", expanded=True)
         pg.run()

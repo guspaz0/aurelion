@@ -4,7 +4,7 @@ from typing import List, Dict, Any, TYPE_CHECKING, Optional
 import json
 
 if TYPE_CHECKING:
-    from src.modules.ventas.detalle_venta_model import DetalleVentaModel
+    from .detalle_venta_model import DetalleVentaModel
 
 @dataclass
 class VentaModel:
@@ -40,10 +40,7 @@ class VentaModel:
         
         else:
             # importar en tiempo de ejecución para evitar problemas de importación circular
-            try:
-                from src.modules.ventas.detalle_venta_model import DetalleVentaModel
-            except Exception:
-                from .detalle_venta_model import DetalleVentaModel
+            from .detalle_venta_model import DetalleVentaModel
 
             raw = self.detalle
             if isinstance(raw, str):
