@@ -18,6 +18,7 @@ ventas = st.Page("_pages/Ventas.py", title="Ventas", icon="📈")
 home_page = st.Page("_pages/home.py", title="Home", icon="🏠", default=True)
 productos = st.Page("_pages/Productos.py", title="Productos", icon="📦")
 documentacion = st.Page("_pages/Documentacion.py", title="Documentación", icon="📖")
+docuentacion_ml = st.Page("_pages/machineLearning.py", title="Machine Learning", icon="📖")
 analisisEDA = st.Page("_pages/analisisEda.py", title="Analisis EDA", icon="📊")
 
 def run_app():
@@ -26,7 +27,7 @@ def run_app():
             "Home": [home_page],  # default page
             "Reportes": [ventas, mapa_ventas, clientes, productos],
             "Analisis EDA": [analisisEDA],
-            "Documentación": [documentacion]
+            "Documentación": [documentacion, docuentacion_ml]
         }, position="sidebar", expanded=True)
         pg.run()
     except Exception as e:

@@ -1,0 +1,1 @@
+from modules.ml.predictor_model import VentasPredictorModel

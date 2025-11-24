@@ -100,6 +100,85 @@ PYTHONPATH=src python3 -c "from app_state import App; App()"
 
 - **Interpretación de resultados orientada al problema:** cada resultado del EDA debe traducirse a acciones concretas: recategorización de productos con incoherencias, recomputación de importes erróneos, identificación de clientes o periodos atípicos que requieren limpieza o verificación, y recomendaciones para mejorar la calidad de los CSV de origen.
 
+
+# Entrega 3: Machine Learning con scikit-learn
+
+## Modelo de Predicción de Importe Total de Ventas
+
+**📊 Resumen:**
+Se ha implementado un modelo de **Regresión Lineal** para predecir el importe total de ventas basándose en características como cantidad de items, mes, día de la semana y método de pago.
+
+**🎯 Resultados:**
+- **R² (Test Set): 0.787** - El modelo explica el 78.7% de la varianza
+- **MAE (Test Set): $5,158.86** - Error promedio manejable
+- **Sin overfitting evidente** - Balance correcto entre train/test
+
+### Archivos Principales
+
+| Archivo | Descripción |
+|---------|-------------|
+| `src/modules/ml/predictor_model.py` | Clase `VentasPredictorModel` con lógica completa de ML |
+| `src/ml_analysis.ipynb` | Notebook con análisis, entrenamiento y visualizaciones |
+| `docs/ML_DOCUMENTATION.md` | 📋 Documentación detallada del proyecto |
+| `src/requirements.txt` | Actualizado con `scikit-learn==1.5.2` |
+
+### Cómo Ejecutar el Análisis
+
+```bash
+# 1. Activar entorno virtual
+source aurelion/bin/activate
+
+# 2. Instalar dependencias
+pip install -r src/requirements.txt
+
+# 3. Abrir notebook
+jupyter notebook src/ml_analysis.ipynb
+```
+
+### Modelo & Características
+
+**Algoritmo:** Regresión Lineal  
+**Entrada (X):** 8 características
+- `cantidad`: Cantidad total de items vendidos
+- `mes`: Mes de la venta (1-12)
+- `dia`: Día del mes (1-31)
+- `dia_semana`: Día de la semana (0-6)
+- `pago_*`: Método de pago (one-hot encoded)
+
+**Salida (y):** `importe` (valor numérico continuo)
+
+### División Train/Test
+- **Entrenamiento:** 96 muestras (80%)
+- **Prueba:** 24 muestras (20%)
+- **Random state:** 42 (reproducibilidad)
+
+### Métricas Principales
+
+| Métrica | Entrenamiento | Prueba |
+|---------|---|---|
+| MAE | $5,516.52 | $5,158.86 |
+| RMSE | 7,077.96 | 6,641.64 |
+| R² | 0.7046 | **0.7870** |
+
+### Visualizaciones Generadas
+1. ✅ Matriz de Correlación (características vs target)
+2. ✅ Predicción vs Real (scatter plots train/test)
+3. ✅ Análisis de Residuos (4 gráficos: residuos, histograma, Q-Q plot, secuencia)
+4. ✅ Importancia de Características (coeficientes del modelo)
+
+### Características Más Importantes
+1. **cantidad** (coef: 10,517.55) - Característica dominante
+2. **mes** (coef: 1,092.58) - Efecto temporal
+3. **pago_efectivo** (coef: 717.63) - Método de pago
+
+### Documentación Completa
+📖 **Ver:** `docs/ML_DOCUMENTATION.md` para detalles extensos incluyendo:
+- Objetivo y justificación del algoritmo
+- Fórmulas matemáticas completas
+- Análisis detallado de métricas
+- Limitaciones y mejoras futuras
+- Cómo integrar el modelo en producción
+
 - **Reproducir el EDA:** existe el notebook `src/prueba_entidades.ipynb` que puede usarse como punto de partida para visualizar y calcular las métricas anteriores. Pasos rápidos:
 
 ```bash
