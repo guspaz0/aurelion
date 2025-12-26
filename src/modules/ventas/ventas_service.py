@@ -2,6 +2,8 @@ from datetime import datetime, date
 import os, csv, logging
 from typing import Dict, List, TYPE_CHECKING
 
+from modules.ml.predictor_model import VentasPredictorModel
+
 logger = logging.getLogger(__file__)
 
 if TYPE_CHECKING:
@@ -13,6 +15,7 @@ class VentasService:
     def __init__(self, db: 'DbConnection'):
         self._dao: 'VentasDao' = db.ventasDao
         self.ciudades: List[str] = db.clientesDao.get_ciudades()
+        self.ventas_predictor = VentasPredictorModel()
     
     def get_all(self, f_desde: datetime | str = None, f_hasta: datetime | str = None) -> List['VentaModel']:
         """Retorna todos los registros de ventas en la base de datos. Ordenados por fecha en orden descendente."""
